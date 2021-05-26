@@ -1,0 +1,16 @@
+{
+  "name": "asnjs",
+  "version": "0.0.0",
+  "description": "ASN.1 OER decoder",
+  "main": "./asnjs.mjs",
+  "author": {
+    "name": ""
+  },
+  "exports": {
+    "require": "./asnjs.js",
+    "default": "./asnjs.mjs"
+  },
+  "dependencies": {
+    "esm": "^3.2.25"
+  }
+}
