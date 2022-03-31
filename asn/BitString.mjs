@@ -43,7 +43,39 @@ export var BitString = function (fixedLength) {
 
             return a;
         }
+
         static from_uper(dc, bitLength) {
+        }
+
+        static to_oer(dc, r, bitLength) {
+            r.to_oer(dc, bitLength);
+        }
+
+        to_oer(dc, bitLength) {
+            if (fixedLength !== undefined) {
+                bitLength = fixedLength;
+            }
+            if (bitLength !== undefined) {
+                bitLength = this.length;
+                let len = ~~((this.length + 7) / 8);
+                // write len including unused bits octet and the unused bits octet
+                Length.to_oer(dc, len + 1);
+                dc.setUint8(len * 8 - bitLength);
+            }
+            let x, v = 0;
+            for (x = 0; x < this.length; x++) {
+                v = (v << 1) | (this.at(x) ? 1 : 0);
+                if ((x & 7) == 7) {
+                    dc.setUint8(v);
+                    v = 0;
+                }
+            }
+            if (x & 7) {
+                x = 8 - (x % 8);
+                v = (v << x)
+                dc.setUint8(v);
+            }
+            return dc;
         }
     };
     if (fixedLength !== undefined)

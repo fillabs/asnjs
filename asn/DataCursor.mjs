@@ -29,18 +29,23 @@ export class DataCursor {
         return this.dv.getInt8(this.index++);
     }
     setInt8(r, index) {
-        if (index !== undefined) this.index = index;
-        this.dv.setInt8(this.index++, r);
-        return r;
+        if (index !== undefined) {
+            this.dv.setInt8(index, r);
+        } else {
+            this.dv.setInt8(this.index++, r);
+        }
+        return this;
     }
     getUint8(index) {
         if (index !== undefined) this.index = index;
         return this.dv.getUint8(this.index++);
     }
     setUint8(r, index) {
-        if (index !== undefined) this.index = index;
-        this.dv.setUint8(this.index++, r);
-        return r;
+        if (index !== undefined)
+            this.dv.setUint8(this.index, r);
+        else
+            this.dv.setUint8(this.index++, r);
+        return this;
     }
     getInt16(index) {
         if (index !== undefined) this.index = index;
@@ -49,10 +54,13 @@ export class DataCursor {
         return r;
     }
     setInt16(r, index) {
-        if (index !== undefined) this.index = index;
-        this.dv.getInt16(this.index, r, littleEndian);
-        this.index += 2;
-        return r;
+        if (index !== undefined)
+            this.dv.setInt16(index, r, littleEndian);
+        else {
+            this.dv.setInt16(this.index, r, littleEndian);
+            this.index += 2;
+        }
+        return this;
     }
     getUint16(index) {
         if (index !== undefined) this.index = index;
@@ -61,10 +69,13 @@ export class DataCursor {
         return r;
     }
     setUint16(r, index) {
-        if (index !== undefined) this.index = index;
-        this.dv.setUint16(this.index, r, littleEndian);
-        this.index += 2;
-        return r;
+        if (index !== undefined)
+            this.dv.setUint16(index, r, littleEndian);
+        else {
+            this.dv.setUint16(this.index, r, littleEndian);
+            this.index += 2;
+        }
+        return this;
     }
     getInt32(index) {
         if (index !== undefined) this.index = index;
@@ -73,10 +84,13 @@ export class DataCursor {
         return r;
     }
     setInt32(r, index) {
-        if (index !== undefined) this.index = index;
-        this.dv.setInt32(this.index, r, littleEndian);
-        this.index += 4;
-        return r;
+        if (index !== undefined)
+            this.dv.setInt32(index, r, littleEndian);
+        else {
+            this.dv.setInt32(this.index, r, littleEndian);
+            this.index += 4;
+        }
+        return this;
     }
     getUint32(index) {
         if (index !== undefined) this.index = index;
@@ -85,10 +99,13 @@ export class DataCursor {
         return r;
     }
     setUint32(r, index) {
-        if (index !== undefined) this.index = index;
-        this.dv.getUint32(this.index, r, littleEndian);
-        this.index += 4;
-        return r;
+        if (index !== undefined)
+            this.dv.setUint32(index, r, littleEndian);
+        else {
+            this.dv.setUint32(this.index, r, littleEndian);
+            this.index += 4;
+        }
+        return this;
     }
     getInt64(index) {
         if (index !== undefined) this.index = index;
@@ -98,7 +115,6 @@ export class DataCursor {
         return BigInt(h, l);
     }
     setInt64(r, index) {
-        if (index !== undefined) this.index = index;
         var h, l;
         if (typeof r == 'bigint') {
             r = BigInt.asIntN(64, r);
@@ -108,10 +124,15 @@ export class DataCursor {
             h = 0;
             l = r;
         }
-        this.dv.setInt32(this.index, h, littleEndian);
-        this.dv.setInt32(this.index + 4, l, littleEndian);
-        this.index += 8;
-        return r;
+        if (index !== undefined) {
+            this.dv.setInt32(index, h, littleEndian);
+            this.dv.setInt32(index + 4, l, littleEndian);
+        } else {
+            this.dv.setInt32(this.index, h, littleEndian);
+            this.dv.setInt32(this.index + 4, l, littleEndian);
+            this.index += 8;
+        }
+        return this;
     }
     getUint64(index) {
         if (index !== undefined) this.index = index;
@@ -122,7 +143,6 @@ export class DataCursor {
     }
 
     setUint64(r, index) {
-        if (index !== undefined) this.index = index;
         var h, l;
         if (typeof r == 'bigint') {
             r = BigInt.asUintN(64, r);
@@ -132,11 +152,15 @@ export class DataCursor {
             h = 0;
             l = r;
         }
-
-        var h = this.dv.setUint32(this.index, h, littleEndian);
-        var l = this.dv.setUint32(this.index + 4, l, littleEndian);
-        this.index += 8;
-        return r;
+        if (index !== undefined) {
+            this.dv.setUint32(index, h, littleEndian);
+            this.dv.setUint32(index + 4, l, littleEndian);
+        } else {
+            this.dv.setUint32(this.index, h, littleEndian);
+            this.dv.setUint32(this.index + 4, l, littleEndian);
+            this.index += 8;
+        }
+        return this;
     }
 
     hasNext() {
@@ -157,5 +181,4 @@ BigInt.from_oer = function (dc) {
 BigInt.prototype.to_oer = function (dc) {
     return dc.setInt64(this);
 };
-
-//module.exports = DataCursor;
+ 

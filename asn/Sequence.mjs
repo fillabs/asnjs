@@ -65,7 +65,13 @@ export var Sequence = function (fields, options) {
                     }
                     Object.defineProperty(x, f.name, {
                         __proto__: null, enumerable: true, writable: true,
-                        value: f.type ? f.type.from_oer(dc, options) : null
+                        value: f.type ? ((dc, options)=>{
+                            if(typeof f.type.from_oer === 'function'){
+                                return f.type.from_oer(dc, options);
+                            }
+                            console.log("Oups!!!");
+                            return null;
+                        })(dc, options) : null
                     });
                     if (f.key) {
                         options = Object.assign(options);
@@ -105,4 +111,3 @@ export var Sequence = function (fields, options) {
     return C;
 };
 
-//module.exports = Sequence;

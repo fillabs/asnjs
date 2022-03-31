@@ -1,6 +1,4 @@
-﻿import {DataCursor} from './DataCursor.mjs';
-import {Length} from './Length.mjs';
-import {Uint8} from './Uint8.mjs';
+﻿import {Length} from './Length.mjs';
 
 export var IA5String = function IA5String(fixedLength) {
     var C = class IA5String extends String {

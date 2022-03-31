@@ -1,5 +1,5 @@
-import {DataCursor} from './DataCursor.mjs';
 import {Length} from './Length.mjs';
+import {OpenType} from './OpenType.mjs';
 import {Tag} from './Tag.mjs';
 
 export var Choice = function (fields, options) {
@@ -42,7 +42,7 @@ export var Choice = function (fields, options) {
                 }
                 var f = fields[tag.index];
                 if (f === undefined) {
-                    console.log("Oups!");
+                    throw new TypeError('[' + initIndex + '] ' + x.constructor.name + ': undefined field for tag ' + tag.index);
                 }
                 //                    console.log('' + dc.index + ' Choice [' + tag.index + '] = ' + f.name + (f.extension ? ' (extension)' : ''));
                 if (f.extension) {
@@ -50,9 +50,16 @@ export var Choice = function (fields, options) {
                     e_end = dc.index + l;
                 }
                 if (f.name) {
+                    
                     Object.defineProperty(x, f.name, {
                         __proto__: null, enumerable: true, writable: true,
-                        value: f.type ? f.type.from_oer(dc, options) : null
+                        value: f.type ? ((dc, options)=>{
+                            if(typeof f.type.from_oer === 'function'){
+                                return f.type.from_oer(dc, options);
+                            }
+                            console.log("Oups!!!");
+                            return null;
+                        })(dc, options) : null
                     });
                     if (e_end !== undefined && e_end !== dc.index) {
                         throw new RangeError('[' + initIndex + '] ' + x.constructor.name + ':  ' + f.name + ': oversized extension');
@@ -72,8 +79,38 @@ export var Choice = function (fields, options) {
             }
             return x;
         }
+        to_oer(dc, options) {
+            var keep_buffer;
+            if (options) {
+                keep_buffer = options.keep_buffer;
+                options.keep_buffer = undefined;
+            }
+            var initIndex = dc.index;
+            for (let i = 0; i < fields.length; i++) {
+                let f = fields[i];
+                if (this[f.name] !== undefined) {
+                    Tag.to_oer(dc, Tag.CONTEXT_SPEC, i);
+                    if (f.extension) {
+                        OpenType.to_oer(dc, this[f.name]);
+                    } else {
+                        this[f.name].to_oer(dc);
+                    }
+                    break;
+                }
+            }
+            if (i == fields.length) {
+                throw new RangeError(x.constructor.name + ':  choice is not initialized');
+            }
+            if (keep_buffer) {
+                Object.defineProperty(this, 'oer', {
+                    __proto__: null,
+                    value: new Uint8Array(dc.buffer, dc.byteOffset + initIndex, dc.index - initIndex)
+                });
+            }
+        }
+        
     };
-    C.Fields = fields;
+    C.fields = fields;
     return C;
 };
 export default Choice;

@@ -33,6 +33,16 @@ export var Enumerated = function (fields) {
             }
             return new this(x);
         }
+        static to_oer(dc, x) {
+            if (x > 127) {
+                throw new Error("Enum > 127");
+            }
+            return dc.setUint8(x);
+        }
+        to_oer(dc) {
+            return Enumerated.to_oer(dc, this);
+        }
+
         static from_uper(dc) {
             let x = undefined;
             let lb = 0;
@@ -42,6 +52,7 @@ export var Enumerated = function (fields) {
             }
             return lb + Integer(0, fields.length - lb - 1).from_uper(dc);
         }
+
     };
     C.Extension = Extension;
     C.isExtension = function (x) {

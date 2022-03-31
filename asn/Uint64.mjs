@@ -11,9 +11,6 @@ export class Uint64 {
     to_oer(dc) {
         return dc.setUint64(this);
     }
-    to_oer(dc) {
-        return dc.setUint64(this);
-    }
 }
 
 //module.exports = Uint64;

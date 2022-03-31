@@ -21,6 +21,36 @@
         }
         return new Tag(c, t);
     }
+    static to_oer(dc, c, t) {
+        c = c & 0x03;
+        if (t < 64) {
+            dc.setUint8((c << 6) | t);
+        } else {
+            dc.setUint8((c << 6) | 0x3F);
+
+            var f = (x) => {
+                let q = ~~(x / 128);
+                let r = x - (q * 128);
+                if (q) {
+                    r += 128;
+                    f(q);
+                }
+                dc.setUint8(r);
+            }
+
+            f(t);
+        }
+        return dc;
+    }
+
+    to_oer(dc) {
+        return Tag.to_oer(dc, this.class, this.index);
+    }
 }
+
+Tag.UNIVARSAL = 0;
+Tag.APPLICATION = 1;
+Tag.CONTEXT_SPEC = 2;
+Tag.PRIVATE = 3;
 
 //module.exports = Tag;

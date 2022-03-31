@@ -31,6 +31,27 @@ export var OctetString = function OctetString(fixedLength) {
         dataCursor() {
             return new DataCursor(this.buffer, this.byteOffset, this.byteLength);
         }
+        equal(b){
+            if(b instanceof Uint8Array){
+                if(this === b) return true;
+                    if(!b || this.length !== b.length) return false;
+                for(let i=0; i<this.length; i++){
+                    if(this[i] !== b[i]) return false;
+                }
+                return true;
+            }
+            return false;
+        }
+        static equal(a,b){
+            if(a instanceof OctetString)
+                return a.equal(b);
+            return false; 
+        }
+        toHex() { // buffer is an ArrayBuffer
+            return this
+                .map(x => x.toString(16).padStart(2, '0'))
+                .join('');
+        }
 //        dataBitCursor() {
 //            return new DataBitCursor(this.buffer, this.byteOffset, this.byteLength);
 //        }

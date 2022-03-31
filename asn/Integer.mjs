@@ -47,6 +47,20 @@ export var Integer = function (options, max) {
             }
             return x;
         }
+
+        to_oer(dc) {
+            let r = Number.parseInt(this);
+            let l = Number.byteCount(this);
+            Length.to_oer(dc, l);
+            let idx = dc.index;
+            for (let i = l - 1; i >= 0; i--) {
+                dc.setUint8(dc, r & 0xFF, idx + i);
+                r >>= 8;
+            }
+            dc.index = idx + l;
+            return dc;
+        }
+
         static to_oer(dc, r) {
             let l;
             if (typeof r === 'bigint')
@@ -58,17 +72,11 @@ export var Integer = function (options, max) {
             Length.to_oer(dc, l);
             let n = r;
             let idx = dc.index;
-            if (Options.min >= 0) {
-                for (let i = l - 1; i >= 0; i--) {
-                    dc.setUint8(dc, n & 0xFF, idx + i);
-                }
-                dc.index = idx + l;
-            } else {
-                for (let i = l - 1; i >= 0; i--) {
-                    dc.setInt8(dc, n & 0xFF, idx + i);
-                }
-                dc.index = idx + l;
+            for (let i = l - 1; i >= 0; i--) {
+                dc.setUint8(dc, n & 0xFF, idx + i);
+                n >>= 8;
             }
+            dc.index = idx + l;
             return x;
         }
 
