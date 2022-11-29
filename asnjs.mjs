@@ -11,6 +11,7 @@ import {Length} from "./asn/Length.mjs";
 import {Boolean} from "./asn/Boolean.mjs";
 import {Enumerated} from "./asn/Enumerated.mjs";
 import {BitString} from "./asn/BitString.mjs";
+import {UTF8String} from "./asn/UTF8String.mjs";
 import {IA5String} from "./asn/IA5String.mjs";
 import {OctetString} from "./asn/OctetString.mjs";
 import {Choice} from "./asn/Choice.mjs";
@@ -19,11 +20,12 @@ import {Sequence} from "./asn/Sequence.mjs";
 import {SequenceOf} from "./asn/SequenceOf.mjs";
 import {Tag} from "./asn/Tag.mjs";
 import {OpenType} from "./asn/OpenType.mjs";
+import {Null} from "./asn/Null.mjs";
 
 export {
     Int8, Int16, Int32, Int64, Uint8, Uint16,
     Uint32, Uint64, Integer, Length, Boolean, Enumerated,
-    BitString, IA5String, OctetString, Choice,
-    Sequence, SequenceOf, Tag, OpenType,
+    BitString, IA5String, UTF8String, OctetString, Choice,
+    Sequence, SequenceOf, Tag, OpenType, Null,
     DataCursor
 };

@@ -95,6 +95,12 @@ declare module "asnjs"{
         function from_uper(dc: DataCursor, len?: number): string;
     }
 
+    export function UTF8String(fixedLength?: number): string;
+    export namespace UTF8String {
+        function from_oer(dc: DataCursor, len?: number): string;
+        function from_uper(dc: DataCursor, len?: number): string;
+    }
+
     export class iOctetString extends Uint8Array{
         readonly fixedLength: number|undefined;
         readonly BYTES_PER_ELEMENT: number;
@@ -210,5 +216,12 @@ declare module "asnjs"{
         from_oer(dc: DataCursor, options: any): any;
         from_uper(dc: DataCursor, options: any): any;
         variants: {};
+    };
+
+    export class Null {
+        static from_oer(dc: DataCursor): undefined;
+        static from_uper(dc: DataCursor): undefined;
+        static to_oer(dc: DataCursor): DataCursor;
+        to_oer(dc:DataCursor): DataCursor;
     };
 }

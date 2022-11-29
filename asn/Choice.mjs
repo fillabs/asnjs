@@ -1,7 +1,18 @@
+import { DataCursor } from 'asnjs';
 import {Length} from './Length.mjs';
 import {OpenType} from './OpenType.mjs';
 import {Tag} from './Tag.mjs';
 
+/**
+ * @typedef iChoice
+ * @class
+ */
+
+/**
+ * @param {{name:string,type:Object,extension:?boolean}[]}fields
+ * @param {{extendable:boolean}[]} options 
+ * @returns {iChoice}
+ */
 export var Choice = function (fields, options) {
 
     var Options = Object.assign({}, options);
@@ -21,11 +32,18 @@ export var Choice = function (fields, options) {
     }
     fields = a;
 
-    var C = class Choice {
+    /**
+     * @augments iChoice
+     */
+    var C = class iChoice {
         constructor() {
-
         }
 
+        /**
+         * @param {DataCursor} dc 
+         * @param {{keep_buffer:boolean}} options 
+         * @constructs 
+         */
         static from_oer(dc, options) {
             var x = new this();
             var initIndex = dc.index;
@@ -79,7 +97,12 @@ export var Choice = function (fields, options) {
             }
             return x;
         }
-        to_oer(dc, options) {
+        /**
+         * @param {DataCursor} dc 
+         * @param {{keep_buffer:boolean}} options 
+         * @returns {DataCursor}
+         */
+         to_oer(dc, options) {
             var keep_buffer;
             if (options) {
                 keep_buffer = options.keep_buffer;

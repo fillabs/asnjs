@@ -2,13 +2,26 @@
 import {Length} from './Length.mjs';
 import {Uint8} from './Uint8.mjs';
 
+/**
+ * @param {number} fixedLength 
+ * @returns {iBitString}
+ */
 export var BitString = function (fixedLength) {
 
-    var C = class BitString extends Array {
+    /**
+     * @class
+     * @extends {boolean[]}
+     * @param {number} len
+     */
+    var C = class iBitString extends Array {
         constructor(len) {
             super(len);
         }
-
+        /**
+         * @param {DataCursor} dc 
+         * @param {number} bitLength 
+         * @returns {iBitString}
+         */
         static from_oer(dc, bitLength) {
             // read data
             var len, idx, unused;
@@ -44,14 +57,30 @@ export var BitString = function (fixedLength) {
             return a;
         }
 
+        /**
+         * @param {DataCursor} dc 
+         * @param {number} bitLength 
+         * @returns {iBitString}
+         */
         static from_uper(dc, bitLength) {
         }
 
-        static to_oer(dc, r, bitLength) {
+        /**
+         * @param {DataCursor} dc 
+         * @param {iBitString} r 
+         * @param {number} bitLength 
+         * @returns {DataCursor}
+         */
+         static to_oer(dc, r, bitLength) {
             r.to_oer(dc, bitLength);
         }
 
-        to_oer(dc, bitLength) {
+        /**
+         * @param {DataCursor} dc 
+         * @param {number} bitLength 
+         * @returns {DataCursor}
+         */
+         to_oer(dc, bitLength) {
             if (fixedLength !== undefined) {
                 bitLength = fixedLength;
             }
@@ -84,6 +113,10 @@ export var BitString = function (fixedLength) {
     return C;
 };
 
+/**
+ * @function
+ * @param {DataCursor} dc 
+ * @param {number} bitLength 
+ * @returns {iBitString}
+ */
 BitString.from_oer = BitString().from_oer;
-
-//module.exports = BitString;

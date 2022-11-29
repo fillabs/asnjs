@@ -1,25 +1,7 @@
-﻿import {Length} from './Length.mjs';
+﻿import {StringBase} from './String.mjs';
 
 export var IA5String = function IA5String(fixedLength) {
-    var C = class IA5String extends String {
-        get fixedLength() {
-            return C.fixedLength;
-        }
-        static from_oer(dc, options) {
-            let len = (typeof options === 'object') ? options.length : options;
-            if (len === undefined)
-                len = this.fixedLength;
-            if (len === undefined)
-                len = Length.from_oer(dc);
-            var v = new Uint8Array(dc.buffer, dc.byteOffset + dc.proceed(len), len);
-            var s = String.fromCharCode.apply(null, v);
-            return new this(s);
-        }
-    };
-    if (fixedLength !== undefined) {
-        C.fixedLength = fixedLength;
-    }
-    return C;
+	return StringBase(fixedLength);
 };
 
 IA5String.from_oer = function (dc, len) {

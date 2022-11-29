@@ -52,6 +52,13 @@ export var OctetString = function OctetString(fixedLength) {
                 .map(x => x.toString(16).padStart(2, '0'))
                 .join('');
         }
+//        [inspect_custom]() {
+//            let r = "";
+//            let b = Buffer.from(this);
+//            for(let i=0; i< this.length; i++)
+//                r += "\n  " + b.toString('hex', i, i+16);
+//            return r;
+//        }
 //        dataBitCursor() {
 //            return new DataBitCursor(this.buffer, this.byteOffset, this.byteLength);
 //        }

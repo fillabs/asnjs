@@ -13,6 +13,7 @@ import {Boolean} from "./asn/Boolean.mjs";
 import {Enumerated} from "./asn/Enumerated.mjs";
 import {BitString} from "./asn/BitString.mjs";
 import {IA5String} from "./asn/IA5String.mjs";
+import {UTF8String} from "./asn/UTF8String.mjs";
 import {OctetString} from "./asn/OctetString.mjs";
 import {Choice} from "./asn/Choice.mjs";
 import {DataCursor} from "./asn/DataCursor.mjs";
@@ -20,6 +21,7 @@ import {Sequence} from "./asn/Sequence.mjs";
 import {SequenceOf} from "./asn/SequenceOf.mjs";
 import {Tag} from "./asn/Tag.mjs";
 import {OpenType} from "./asn/OpenType.mjs";
+import {Null} from "./asn/Null.mjs";
 
 function createSpanElement(t, v) {
     let s =document.createElement('SPAN');
@@ -143,6 +145,17 @@ IA5StringWeb.from_oer = function (dc, len) {
     return IA5StringWeb(len).from_oer(dc, len);
 };
 
+var UTF8StringWeb = function (fixedLength) {
+    var C = UTF8String(fixedLength);
+    C.prototype.htmlElement = function() {
+        return createSpanElement('string', this);
+    };
+    return C;
+}
+UTF8StringWeb.from_oer = function (dc, len) {
+    return UTF8StringWeb(len).from_oer(dc, len);
+};
+
 var OctetStringWeb = function (fixedLength) {
     var C = OctetString(fixedLength);
     C.prototype.htmlElement = function() {
@@ -174,9 +187,10 @@ export {
     EnumeratedWeb as Enumerated,
     BitStringWeb as BitString,
     IA5StringWeb as IA5String,
+    UTF8StringWeb as UTF8String,
     OctetStringWeb as OctetString,
     ChoiceWeb as Choice,
     SequenceWeb as Sequence,
-    SequenceOf, Tag, OpenType,
+    SequenceOf, Tag, OpenType, Null,
     createHtmlElement
 } ;
