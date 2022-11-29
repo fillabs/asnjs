@@ -7,13 +7,13 @@ import {Uint8} from './Uint8.mjs';
  * @returns {iBitString}
  */
 export var BitString = function (fixedLength) {
-
+    var C;
     /**
      * @class
      * @extends {boolean[]}
      * @param {number} len
      */
-    var C = class iBitString extends Array {
+    C = class iBitString extends Array {
         constructor(len) {
             super(len);
         }
@@ -26,7 +26,7 @@ export var BitString = function (fixedLength) {
             // read data
             var len, idx, unused;
 
-            var fill = (a, o, u) => {
+            const fill = (a, o, u) => {
                 for (let b = 7; b >= u; b--) {
                     a[idx++] = (o >> b) & 1 ? true : false;
                 }
@@ -45,7 +45,7 @@ export var BitString = function (fixedLength) {
                 bitLength = len * 8 - unused;
             }
 
-            var a = new BitString(bitLength);
+            var a = new this(bitLength);
 
             idx = 0;
             for (; len > 1; len--) {

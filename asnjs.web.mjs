@@ -50,7 +50,7 @@ function createHtmlElement( v ){
         return createSpanElement('string', v);
     } else if (typeof v === 'boolean'){
         return createSpanElement('boolean', v?'true':'false');
-    }else if (typeof v === 'object' || typeof v === 'function'){
+    }else if (typeof v === 'object'){
         if (typeof v.htmlElement === 'function'){
             return v.htmlElement();
         }else if(Array.isArray(v)){
@@ -120,7 +120,7 @@ var ChoiceWeb = function (fields, options) {
 var BitStringWeb  = function(fixedLength) {
     var C = BitString(fixedLength);
     C.prototype.htmlElement = function() {
-        return createSpanElement('bitstring', this);
+        return createSpanElement('bitstring', this.reduce((a,v)=>a+=(v?'1':'0'), '[') + ']');
     }
     return C;
 }
