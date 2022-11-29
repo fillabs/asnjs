@@ -21,11 +21,12 @@ import {SequenceOf} from "./asn/SequenceOf.mjs";
 import {Tag} from "./asn/Tag.mjs";
 import {OpenType} from "./asn/OpenType.mjs";
 import {Null} from "./asn/Null.mjs";
+import {ObjectIdentifier} from "./asn/ObjectIdentifier.mjs";
 
 export {
     Int8, Int16, Int32, Int64, Uint8, Uint16,
     Uint32, Uint64, Integer, Length, Boolean, Enumerated,
     BitString, IA5String, UTF8String, OctetString, Choice,
-    Sequence, SequenceOf, Tag, OpenType, Null,
+    Sequence, SequenceOf, Tag, OpenType, Null, ObjectIdentifier,
     DataCursor
 };

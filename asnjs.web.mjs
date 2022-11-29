@@ -22,6 +22,7 @@ import {SequenceOf} from "./asn/SequenceOf.mjs";
 import {Tag} from "./asn/Tag.mjs";
 import {OpenType} from "./asn/OpenType.mjs";
 import {Null} from "./asn/Null.mjs";
+import {ObjectIdentifier} from "./asn/ObjectIdentifier.mjs";
 
 function createSpanElement(t, v) {
     let s =document.createElement('SPAN');
@@ -49,7 +50,7 @@ function createHtmlElement( v ){
         return createSpanElement('string', v);
     } else if (typeof v === 'boolean'){
         return createSpanElement('boolean', v?'true':'false');
-    }else if (typeof v === 'object'){
+    }else if (typeof v === 'object' || typeof v === 'function'){
         if (typeof v.htmlElement === 'function'){
             return v.htmlElement();
         }else if(Array.isArray(v)){
@@ -180,6 +181,10 @@ IntegerWeb.from_oer = Integer.from_oer;
 IntegerWeb.to_oer = Integer.to_oer;
 IntegerWeb.from_uper = Integer.from_uper;
 
+ObjectIdentifier.htmlElement = function() {
+    return createSpanElement('OID', this.toHex());
+} 
+
 export {
     DataCursor,
     Int8, Int16, Int32, Int64, Uint8, Uint16, Uint32, Uint64, Length, Boolean,
@@ -191,6 +196,6 @@ export {
     OctetStringWeb as OctetString,
     ChoiceWeb as Choice,
     SequenceWeb as Sequence,
-    SequenceOf, Tag, OpenType, Null,
+    SequenceOf, Tag, OpenType, Null, ObjectIdentifier,
     createHtmlElement
 } ;
