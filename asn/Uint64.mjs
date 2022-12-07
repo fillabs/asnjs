@@ -8,9 +8,4 @@ export class Uint64 {
     static from_uper(dc) {
         return dc.getUIntBits(64);
     }
-    to_oer(dc) {
-        return dc.setUint64(this);
-    }
 }
-
-//module.exports = Uint64;

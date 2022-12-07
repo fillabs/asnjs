@@ -8,4 +8,6 @@ IA5String.from_oer = function (dc, len) {
     return IA5String(len).from_oer(dc, len);
 };
 
-//module.exports = IA5String;
+IA5String.to_oer = function (dc, v, len) {
+    return IA5String(len).to_oer(dc, v, len);
+};

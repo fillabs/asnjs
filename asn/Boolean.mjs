@@ -20,18 +20,9 @@ Boolean.from_oer = function (dc) {
  * @returns {DataCursor}
  */
  Boolean.to_oer = function (dc, b) {
-    dc.setUint8(b ? 1 : 0);
+    dc.setUint8(b ? 255 : 0);
     return dc;
 };
-
-/**
- * @param {DataCursor} dc 
- * @returns {DataCursor}
- */
- Boolean.prototype.to_oer = function (dc) {
-    dc.setUint8(this ? 1 : 0);
-    return dc
-}
 
 const B = Boolean;
 export {B as Boolean};

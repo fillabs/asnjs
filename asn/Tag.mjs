@@ -42,15 +42,9 @@
         }
         return dc;
     }
-
-    to_oer(dc) {
-        return Tag.to_oer(dc, this.class, this.index);
-    }
-}
+};
 
 Tag.UNIVARSAL = 0;
 Tag.APPLICATION = 1;
 Tag.CONTEXT_SPEC = 2;
 Tag.PRIVATE = 3;
-
-//module.exports = Tag;

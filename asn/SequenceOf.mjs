@@ -27,6 +27,14 @@ export var SequenceOf = function (T) {
             }
             return a;
         }
+        static to_oer(dc, r, options){
+            var count = r.length;
+            LengthOfSequence.to_oer(dc, count);
+            for (let i = 0; i < count; i++) {
+                C.Type.to_oer(dc, r[i], options)
+            }
+            return dc;
+        }
         get Type() {
             return C.Type;
         }

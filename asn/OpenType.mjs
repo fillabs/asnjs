@@ -4,7 +4,7 @@ import {OctetString} from "./OctetString.mjs";
 
 export var OpenType = function OpenType(variants, varName) {
     if (varName === undefined) varName = 'variant';
-    var C = class OpenType {
+    var C = class iOpenType {
         
         static from_oer(dc, options) {
             let variant = (options && options[varName] !== undefined) ? options[varName] : options;
@@ -26,35 +26,43 @@ export var OpenType = function OpenType(variants, varName) {
             return s;
         }
 
-        to_oer(dc, inner) {
-            Length.to_oer(dc, 0);
-            if (inner !== undefined) {
-                let startIndex = dc.index;
-                if (typeof inner === 'function') {
-                    inner(dc);
-                } else if (typeof (inner['to_oer']) === 'function') {
-                    inner.to_oer(dc);
-                } else {
-                    throw new TypeError('unknown inner object for OpenType');
-                }
-                if ((dc.index - startIndex) < 128) {
-                    dc.setUint8(dc.index - startIndex, startIndex - 1);
-                } else {
-                    let d = new DataCursor(new Buffer(32));
-                    Length.to_oer(d, dc.index - startIndex);
-                    let a = new Uint8Array(dc.buffer(), startIndex - 1);
-                    a.copyWithin(d.index, 1, dc.index - startIndex);
-                    a.set(d);
-                }
-            }
-            return dc;
+        static to_oer(dc, value, options) {
+            let variant = (options && options[varName] !== undefined) ? options[varName] : options;
+            let v = variants[variant];
+            return OpenType.to_oer(dc, v, value, options);
         }
     };
     C.variants = variants;
     return C;
 };
+
+OpenType.to_oer = function(dc, inner, value, options) {
+    Length.to_oer(dc, 0, options);
+    if (inner !== undefined) {
+        let startIndex = dc.index;
+        if (typeof (inner['to_oer']) === 'function') {
+            inner.to_oer(dc, value, options);
+        }else if (typeof inner === 'function') {
+            inner(dc, value, options);
+        } else {
+            throw new TypeError('unknown inner type object for OpenType');
+        }
+        let len = dc.index - startIndex;
+        if (len < 128) {
+            dc.setUint8(len, startIndex - 1);
+        } else {
+            let dcLen = new DataCursor(new ArrayBuffer(32));
+            Length.to_oer(dcLen, len, options);
+            let a = dc.data(startIndex);
+            a.copyWithin(dcLen.index, 1, dc.index - startIndex);
+            a.set(dcLen);
+        }
+    }
+    return dc;
+}
+
 /*
-OpenType.from_oer = function (dc) {
+OpenType.from_oer = function (dc, inner) {
     return OctetString().from_oer(dc);
 };
 OpenType.from_uper = function (dc, len) {

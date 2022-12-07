@@ -28,6 +28,22 @@ export var OctetString = function OctetString(fixedLength) {
             let a = dc.slice(len * 8);
             return new this(a, 0, len);
         }
+        static to_oer(dc, v, options) {
+            let len = this.fixedLength;
+            if(options !== undefined && options.length !== undefined)
+                len = options.length;
+            if(len === undefined){
+                len = v.length;
+                Length.to_oer(dc, len, options);
+            }else if(v.length != len){
+                throw new RangeError( this.constructor.name + ': Length must be ' + len);
+            }
+            let a = new Uint8Array(dc.buffer, dc.byteOffset + dc.index, dc.byteLength - dc.index);
+            a.set(v);
+            dc.index += len;
+            return dc;
+        }
+
         dataCursor() {
             return new DataCursor(this.buffer, this.byteOffset, this.byteLength);
         }
@@ -42,11 +58,13 @@ export var OctetString = function OctetString(fixedLength) {
             }
             return false;
         }
+
         static equal(a,b){
             if(a instanceof OctetString)
                 return a.equal(b);
             return false; 
         }
+
         toHex() { // buffer is an ArrayBuffer
             return this
                 .map(x => x.toString(16).padStart(2, '0'))
@@ -74,5 +92,13 @@ OctetString.from_oer = function (dc, len) {
 };
 OctetString.from_uper = function (dc, len) {
     return OctetString(len).from_uper(dc, len);
+};
+
+OctetString.to_oer = function (dc, r, len) {
+    return OctetString(len).to_oer(dc, r, len);
+};
+
+OctetString.to_uper = function (dc, r, len) {
+    return OctetString(len).to_uper(dc, r, len);
 };
 

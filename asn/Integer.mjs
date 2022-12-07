@@ -1,5 +1,4 @@
-﻿import {DataCursor} from './DataCursor.mjs';
-import {Length} from './Length.mjs'
+﻿import {Length} from './Length.mjs'
 
 export var Integer = function (options, max) {
     var Options = {};
@@ -48,36 +47,20 @@ export var Integer = function (options, max) {
             return x;
         }
 
-        to_oer(dc) {
-            let r = Number.parseInt(this);
-            let l = Number.byteCount(this);
-            Length.to_oer(dc, l);
-            let idx = dc.index;
-            for (let i = l - 1; i >= 0; i--) {
-                dc.setUint8(dc, r & 0xFF, idx + i);
-                r >>= 8;
-            }
-            dc.index = idx + l;
-            return dc;
-        }
-
         static to_oer(dc, r) {
-            let l;
-            if (typeof r === 'bigint')
-                l = BigInt.byteCount(r);
-            else {
-                r = Number.parseInt(r);
-                l = Number.byteCount(r);
-            }
+            let l = r ? Integer.byteCount(r) : 0;
             Length.to_oer(dc, l);
-            let n = r;
-            let idx = dc.index;
-            for (let i = l - 1; i >= 0; i--) {
-                dc.setUint8(dc, n & 0xFF, idx + i);
-                n >>= 8;
+            if(l){
+                let idx = dc.index;
+                if(Options.min >= 0){
+                    dc.setUint64(r);
+                }else{
+                    dc.setInt64(r);
+                }
+                dc.copyWithin(idx, dc.index-l, dc.index);
+                dc.index = idx + l;
             }
-            dc.index = idx + l;
-            return x;
+            return dc;
         }
 
         static from_uper(dc) {
@@ -159,8 +142,6 @@ export var Integer = function (options, max) {
     return C;
 };
 
-//module.exports = Integer;
-
 Integer.from_oer = function (dc) {
     return Integer().from_oer(dc);
 };
@@ -172,4 +153,18 @@ Integer.to_oer = function (dc, r) {
 Integer.from_uper = function (dc) {
     return Integer().from_uper(dc);
 };
+
+const __one64 = 1n;
+Integer.byteCount = function(r) {
+    let num_bytes = 0;
+    let overflow = 0n;
+    const value = BigInt(r);
+    while(value >= overflow){
+        num_bytes++;
+        overflow = (__one64 << BigInt(8*num_bytes));
+    }
+    return num_bytes;
+}
+
+Number.byteCount = BigInt.byteCount = Integer.byteCount;
 

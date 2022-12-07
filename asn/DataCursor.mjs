@@ -1,12 +1,13 @@
-const littleEndian = false;
+const IsLittleEndian = false;
 
 export class DataCursor {
     constructor(buffer, byteOffset, byteLength) {
-        if (byteOffset === undefined) byteOffset = 0;
-        if (buffer.buffer !== undefined) {
-            if (byteLength === undefined)
-                byteLength = buffer.byteLength;
-            byteOffset = buffer.byteOffset + byteOffset;
+        if(byteOffset === undefined) byteOffset = 0;
+        if (buffer.buffer !== undefined) { // typedarray || DataCursor
+            let idx = ((buffer.index !== undefined) ? buffer.index : 0);
+            byteOffset += buffer.byteOffset + idx;
+            if(byteLength === undefined)
+                byteLength = buffer.byteLength - idx;
             buffer = buffer.buffer;
         }
         this.dv = new DataView(buffer, byteOffset, byteLength);
@@ -42,75 +43,75 @@ export class DataCursor {
     }
     setUint8(r, index) {
         if (index !== undefined)
-            this.dv.setUint8(this.index, r);
+            this.dv.setUint8(index, r);
         else
             this.dv.setUint8(this.index++, r);
         return this;
     }
     getInt16(index) {
         if (index !== undefined) this.index = index;
-        var r = this.dv.getInt16(this.index, littleEndian);
+        var r = this.dv.getInt16(this.index, IsLittleEndian);
         this.index += 2;
         return r;
     }
     setInt16(r, index) {
         if (index !== undefined)
-            this.dv.setInt16(index, r, littleEndian);
+            this.dv.setInt16(index, r, IsLittleEndian);
         else {
-            this.dv.setInt16(this.index, r, littleEndian);
+            this.dv.setInt16(this.index, r, IsLittleEndian);
             this.index += 2;
         }
         return this;
     }
     getUint16(index) {
         if (index !== undefined) this.index = index;
-        let r = this.dv.getUint16(this.index, littleEndian);
+        let r = this.dv.getUint16(this.index, IsLittleEndian);
         this.index += 2;
         return r;
     }
     setUint16(r, index) {
         if (index !== undefined)
-            this.dv.setUint16(index, r, littleEndian);
+            this.dv.setUint16(index, r, IsLittleEndian);
         else {
-            this.dv.setUint16(this.index, r, littleEndian);
+            this.dv.setUint16(this.index, r, IsLittleEndian);
             this.index += 2;
         }
         return this;
     }
     getInt32(index) {
         if (index !== undefined) this.index = index;
-        let r = this.dv.getInt32(this.index, littleEndian);
+        let r = this.dv.getInt32(this.index, IsLittleEndian);
         this.index += 4;
         return r;
     }
     setInt32(r, index) {
         if (index !== undefined)
-            this.dv.setInt32(index, r, littleEndian);
+            this.dv.setInt32(index, r, IsLittleEndian);
         else {
-            this.dv.setInt32(this.index, r, littleEndian);
+            this.dv.setInt32(this.index, r, IsLittleEndian);
             this.index += 4;
         }
         return this;
     }
     getUint32(index) {
         if (index !== undefined) this.index = index;
-        let r = this.dv.getUint32(this.index, littleEndian);
+        let r = this.dv.getUint32(this.index, IsLittleEndian);
         this.index += 4;
         return r;
     }
     setUint32(r, index) {
         if (index !== undefined)
-            this.dv.setUint32(index, r, littleEndian);
+            this.dv.setUint32(index, r, IsLittleEndian);
         else {
-            this.dv.setUint32(this.index, r, littleEndian);
+            this.dv.setUint32(this.index, r, IsLittleEndian);
             this.index += 4;
         }
         return this;
     }
     getInt64(index) {
         if (index !== undefined) this.index = index;
-        var h = this.dv.getInt32(this.index, littleEndian);
-        var l = this.dv.getInt32(this.index + 4, littleEndian);
+        var h = this.dv.getInt32(this.index, IsLittleEndian);
+        var l = this.dv.getInt32(this.index + 4, IsLittleEndian);
         this.index += 8;
         return BigInt(h, l);
     }
@@ -125,19 +126,19 @@ export class DataCursor {
             l = r;
         }
         if (index !== undefined) {
-            this.dv.setInt32(index, h, littleEndian);
-            this.dv.setInt32(index + 4, l, littleEndian);
+            this.dv.setInt32(index, h, IsLittleEndian);
+            this.dv.setInt32(index + 4, l, IsLittleEndian);
         } else {
-            this.dv.setInt32(this.index, h, littleEndian);
-            this.dv.setInt32(this.index + 4, l, littleEndian);
+            this.dv.setInt32(this.index, h, IsLittleEndian);
+            this.dv.setInt32(this.index + 4, l, IsLittleEndian);
             this.index += 8;
         }
         return this;
     }
     getUint64(index) {
         if (index !== undefined) this.index = index;
-        var h = this.dv.getUint32(this.index, littleEndian);
-        var l = this.dv.getUint32(this.index + 4, littleEndian);
+        var h = this.dv.getUint32(this.index, IsLittleEndian);
+        var l = this.dv.getUint32(this.index + 4, IsLittleEndian);
         this.index += 8;
         return BigInt(h, l);
     }
@@ -153,11 +154,11 @@ export class DataCursor {
             l = r;
         }
         if (index !== undefined) {
-            this.dv.setUint32(index, h, littleEndian);
-            this.dv.setUint32(index + 4, l, littleEndian);
+            this.dv.setUint32(index, h, IsLittleEndian);
+            this.dv.setUint32(index + 4, l, IsLittleEndian);
         } else {
-            this.dv.setUint32(this.index, h, littleEndian);
-            this.dv.setUint32(this.index + 4, l, littleEndian);
+            this.dv.setUint32(this.index, h, IsLittleEndian);
+            this.dv.setUint32(this.index + 4, l, IsLittleEndian);
             this.index += 8;
         }
         return this;
@@ -171,6 +172,16 @@ export class DataCursor {
         var x = this.index;
         this.index += len;
         return x;
+    }
+    writen() {
+        return new DataView(this.dv.buffer, this.dv.byteOffset, this.index);
+    }
+    copyWithin(tgtIndex, startIndex, endIndex){
+        new Uint8Array(this.dv.buffer, this.dv.byteOffset).copyWithin(tgtIndex, startIndex, endIndex)
+    }
+    
+    data(startIndex, len) {
+        return new Uint8Array(this.dv.buffer, this.dv.byteOffset + startIndex, len)
     }
 }
 

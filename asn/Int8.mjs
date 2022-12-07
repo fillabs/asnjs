@@ -8,7 +8,4 @@ export class Int8 {
     static from_uper(dc) {
         return dc.getIntBits(8);
     }
-    to_oer(dc) {
-        return dc.setInt8(this);
-    }
 }

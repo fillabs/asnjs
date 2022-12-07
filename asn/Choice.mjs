@@ -102,39 +102,42 @@ export var Choice = function (fields, options) {
          * @param {{keep_buffer:boolean}} options 
          * @returns {DataCursor}
          */
-         to_oer(dc, options) {
+        static to_oer(dc, r, options) {
             var keep_buffer;
-            if (options) {
+            if (typeof options === 'object') {
                 keep_buffer = options.keep_buffer;
                 options.keep_buffer = undefined;
             }
             var initIndex = dc.index;
-            for (let i = 0; i < fields.length; i++) {
+            let i = 0;
+            for (; i < fields.length; i++) {
                 let f = fields[i];
-                if (this[f.name] !== undefined) {
+                let v = r[f.name];
+                if (v !== undefined) {
                     Tag.to_oer(dc, Tag.CONTEXT_SPEC, i);
                     if (f.extension) {
-                        OpenType.to_oer(dc, this[f.name]);
-                    } else {
-                        this[f.name].to_oer(dc);
+                        OpenType.to_oer(dc, f.type, v, options);
+                    } else if(v !== null && v.to_oer !== undefined){
+                        v.to_oer(dc, options);
+                    } else if(typeof f.type.to_oer == 'function'){
+                        f.type.to_oer(dc, v, options);
+                    }else{
+                        throw new TypeError(f.type.name + ' do not have oer writer');
                     }
-                    break;
+                    if (keep_buffer) {
+                        Object.defineProperty(r, 'oer', {
+                            __proto__: null,
+                            value: new Uint8Array(dc.buffer, dc.byteOffset + initIndex, dc.index - initIndex)
+                        });
+                    }
+                    return dc;
                 }
             }
-            if (i == fields.length) {
-                throw new RangeError(x.constructor.name + ':  choice is not initialized');
-            }
-            if (keep_buffer) {
-                Object.defineProperty(this, 'oer', {
-                    __proto__: null,
-                    value: new Uint8Array(dc.buffer, dc.byteOffset + initIndex, dc.index - initIndex)
-                });
-            }
+            throw new RangeError(this.name + ':  choice is not initialized');
         }
-        
     };
     C.fields = fields;
     return C;
 };
 export default Choice;
-//module.exports = Choice;
+

@@ -1,6 +1,6 @@
 ﻿import {Length} from './Length.mjs';
 
-export function StringBase(fixedLength, textDecoder) {
+export function StringBase(fixedLength, encoding) {
     var C = class StringBase extends String {
         get fixedLength() {
             return C.fixedLength;
@@ -12,17 +12,30 @@ export function StringBase(fixedLength, textDecoder) {
             if (len === undefined)
                 len = Length.from_oer(dc);
             var v = new Uint8Array(dc.buffer, dc.byteOffset + dc.proceed(len), len);
-            if(textDecoder){
-            	v = textDecoder.decode(v);
-            }else{
-            	v = String.fromCharCode.apply(null, v);
-            }
+          	v = C.textDecoder.decode(v);
             return new this(v);
+        }
+        static to_oer(dc, v, options) {
+            let len = this.fixedLength;
+            if(options !== undefined && options.length !== undefined)
+                len = options.length;
+            if(len === undefined){
+                len = this.length;
+                Length.to_oer(dc, len);
+            }
+            var a = new Uint8Array(dc.buffer, dc.byteOffset + dc.proceed(len), len);
+            C.textEncoder.encodeInto(v, a);
+            return dc;
         }
     };
     if (fixedLength !== undefined) {
         C.fixedLength = fixedLength;
     }
+    if (encoding === undefined) {
+        encoding = 'utf-8';
+    }
+    C.textDecoder = new TextDecoder(encoding);
+    C.textEncoder = new TextEncoder(encoding);
     return C;
 };
 
@@ -30,4 +43,6 @@ StringBase.from_oer = function (dc, len) {
     return StringBase(len).from_oer(dc, len);
 };
 
-//module.exports = IA5String;
+StringBase.to_oer = function (dc, v, len) {
+    return StringBase(len).to_oer(dc, v, len);
+};

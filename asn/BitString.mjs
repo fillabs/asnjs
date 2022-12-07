@@ -67,46 +67,39 @@ export var BitString = function (fixedLength) {
 
         /**
          * @param {DataCursor} dc 
-         * @param {iBitString} r 
-         * @param {number} bitLength 
+         * @param {number|object} bitLength 
          * @returns {DataCursor}
          */
-         static to_oer(dc, r, bitLength) {
-            r.to_oer(dc, bitLength);
-        }
-
-        /**
-         * @param {DataCursor} dc 
-         * @param {number} bitLength 
-         * @returns {DataCursor}
-         */
-         to_oer(dc, bitLength) {
-            if (fixedLength !== undefined) {
+        static to_oer(dc, r, bitLength) {
+            if(bitLength === undefined)
                 bitLength = fixedLength;
-            }
-            if (bitLength !== undefined) {
-                bitLength = this.length;
-                let len = ~~((this.length + 7) / 8);
+            else if (typeof bitLength === 'object')
+                bitLength = bitLength.length;
+            if(bitLength === undefined){
+                let len = ~~((r.length + 7) / 8);
                 // write len including unused bits octet and the unused bits octet
                 Length.to_oer(dc, len + 1);
-                dc.setUint8(len * 8 - bitLength);
-            }
+                dc.setUint8(len * 8 - r.length);
+                bitLength = r.length;
+            }else{
+                bitLength = Number.parseInt(bitLength);
+            }            
             let x, v = 0;
-            for (x = 0; x < this.length; x++) {
-                v = (v << 1) | (this.at(x) ? 1 : 0);
-                if ((x & 7) == 7) {
+            for (x = 0; x < bitLength; x++) {
+                let bx = x & 7;
+                v = v | ((x < r.length && r.at(x)) ? (0x80 >> bx) : 0);
+                if (bx == 7) {
                     dc.setUint8(v);
                     v = 0;
                 }
             }
             if (x & 7) {
-                x = 8 - (x % 8);
-                v = (v << x)
                 dc.setUint8(v);
             }
             return dc;
         }
     };
+
     if (fixedLength !== undefined)
         C.fixedLength = fixedLength;
 
@@ -119,4 +112,30 @@ export var BitString = function (fixedLength) {
  * @param {number} bitLength 
  * @returns {iBitString}
  */
-BitString.from_oer = BitString().from_oer;
+ BitString.from_oer = BitString().from_oer;
+
+ /**
+ * @function
+ * @param {DataCursor} dc 
+ * @param {number} bitLength 
+ * @returns {iBitString}
+ */
+ BitString.from_uper = BitString().from_uper;
+
+ /**
+ * @function
+ * @param {DataCursor} dc
+ * @param {Array} r Array of bits to write to OER buffer
+ * @param {number} bitLength
+ * @returns {iBitString}
+ */
+  BitString.to_oer = BitString().to_oer;
+
+  /**
+ * @function
+ * @param {DataCursor} dc
+ * @param {Array} r Array of bits to write to OER buffer
+ * @param {number} bitLength
+ * @returns {iBitString}
+ */
+  BitString.to_uper = BitString().to_uper;

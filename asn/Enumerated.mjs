@@ -33,14 +33,14 @@ export var Enumerated = function (fields) {
             }
             return new this(x);
         }
+        
         static to_oer(dc, x) {
+            x = Number.parseInt(x);
             if (x > 127) {
                 throw new Error("Enum > 127");
             }
-            return dc.setUint8(x);
-        }
-        to_oer(dc) {
-            return Enumerated.to_oer(dc, this);
+            dc.setUint8(x);
+            return dc;
         }
 
         static from_uper(dc) {

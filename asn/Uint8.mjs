@@ -9,9 +9,5 @@ export class Uint8 {
     static from_uper(dc) {
         return dc.getUIntBits(8);
     }
-    to_oer(dc) {
-        return dc.setUint8(this);
-    }
 }
 
-//module.exports = Uint8;

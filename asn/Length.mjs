@@ -1,4 +1,4 @@
-import {DataCursor} from './DataCursor.mjs';
+import {Integer} from './Integer.mjs';
 
 export class Length extends Number {
 
@@ -19,7 +19,7 @@ export class Length extends Number {
         if (r < 128) {
             dc.setUint8(r);
         } else {
-            var l = BigInt.byteCount(r);
+            var l = Integer.byteCount(r);
             dc.setUint8(128 + l);
             var idx = dc.index;
             var n = r;
@@ -29,10 +29,6 @@ export class Length extends Number {
             }
             dc.index = idx + l;
         }
-        return r;
-    }
-
-    to_oer(dc) {
-        return Length.to_oer(dc, this);
+        return dc;
     }
 }

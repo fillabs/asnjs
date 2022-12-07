@@ -8,9 +8,4 @@ export class Int32 {
     static from_uper(dc) {
         return dc.getUIntBits(32);
     }
-    to_oer(dc) {
-        return dc.setInt32(this);
-    }
 }
-
-//module.exports = Int32;
