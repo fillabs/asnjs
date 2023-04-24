@@ -6,6 +6,19 @@ export var OpenType = function OpenType(variants, varName) {
     if (varName === undefined) varName = 'variant';
     var C = class iOpenType {
         
+        static create (value) {
+            let v = variants[value];
+            if( v === undefined){
+                v = variants[varName];
+                if( v === undefined){
+                    v = variants[0];
+                }
+            }else{
+                value = undefined;
+            }
+            return v.create(value);
+        }
+        
         static from_oer(dc, options) {
             let variant = (options && options[varName] !== undefined) ? options[varName] : options;
             let v = variants[variant];

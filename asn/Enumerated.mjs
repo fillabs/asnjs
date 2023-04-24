@@ -19,6 +19,10 @@ export var Enumerated = function (fields) {
             this.fields = fields;
         }
 
+        static create(v) {
+            return new this(v);
+        }
+
         static from_oer(dc) {
             var x = dc.getUint8();
             if (x === 0x80) {
@@ -60,5 +64,7 @@ export var Enumerated = function (fields) {
     };
     return C;
 };
+
+Enumerated.Extension = Extension;
 
 export default Enumerated;

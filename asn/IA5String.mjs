@@ -1,9 +1,12 @@
 ﻿import {StringBase} from './String.mjs';
 
-export var IA5String = function IA5String(fixedLength) {
-	return StringBase(fixedLength);
+export const IA5String = function IA5String(options) {
+	return StringBase(options);
 };
 
+IA5String.create = function(v) {
+    return IA5String().create(v)
+}
 IA5String.from_oer = function (dc, len) {
     return IA5String(len).from_oer(dc, len);
 };

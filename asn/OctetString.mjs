@@ -1,20 +1,44 @@
 ﻿import {DataCursor} from './DataCursor.mjs';
 import {Length} from './Length.mjs';
-import {Uint8} from './Uint8.mjs';
 
-export var OctetString = function OctetString(fixedLength) {
-    var C;
-    C = class OctetString extends Uint8Array {
+const inspect_custom = Symbol.for('nodejs.util.inspect.custom');
+
+export var OctetString = function OctetString(typeOptions) {
+    const _fixedLength = (typeof typeOptions === 'object') ? (typeOptions.fixedLength??typeOptions.length??typeOptions.size)
+                                                           : ((typeOptions !== undefined) ? Number.parseInt(typeOptions) : undefined);
+    
+    return class OctetString extends Uint8Array {
         constructor(buffer, offset, len) {
             super(buffer, offset, len);
         }
         get fixedLength() {
-            return C.fixedLength;
+            return _fixedLength;
         }
+        static get fixedLength() {
+            return _fixedLength;
+        }
+       
+        static create(v){
+            var blen, len;
+            if(_fixedLength !== undefined){
+                blen = len = _fixedLength;
+            } else if(v){
+                if(v.length){
+                    blen = len = v.length;
+                } else if(v.byteLength){
+                    blen = len = v.byteLength;
+                    v = Buffer.from(v);
+                }
+            } else {
+                256; len =0;
+            }
+            return new this(Buffer.alloc(blen, v), 0, len);
+        }
+    
         static from_oer(dc, options) {
             let len = (typeof options === 'object') ? options.length : options;
             if (len === undefined)
-                len = this.fixedLength;
+                len = _fixedLength;
             if (len === undefined)
                 len = Length.from_oer(dc);
             return new this(dc.buffer, dc.byteOffset + dc.proceed(len), len);
@@ -22,14 +46,14 @@ export var OctetString = function OctetString(fixedLength) {
         static from_uper(dc, options) {
             let len = (typeof options === 'object') ? options.length : options;
             if (len === undefined)
-                len = this.fixedLength;
+                len = _fixedLength;
             if (len === undefined)
                 len = Length.from_uper(dc);
             let a = dc.slice(len * 8);
             return new this(a, 0, len);
         }
         static to_oer(dc, v, options) {
-            let len = this.fixedLength;
+            let len = _fixedLength;
             if(options !== undefined && options.length !== undefined)
                 len = options.length;
             if(len === undefined){
@@ -47,6 +71,7 @@ export var OctetString = function OctetString(fixedLength) {
         dataCursor() {
             return new DataCursor(this.buffer, this.byteOffset, this.byteLength);
         }
+        
         equal(b){
             if(b instanceof Uint8Array){
                 if(this === b) return true;
@@ -70,35 +95,36 @@ export var OctetString = function OctetString(fixedLength) {
                 .map(x => x.toString(16).padStart(2, '0'))
                 .join('');
         }
-//        [inspect_custom]() {
-//            let r = "";
-//            let b = Buffer.from(this);
-//            for(let i=0; i< this.length; i++)
-//                r += "\n  " + b.toString('hex', i, i+16);
-//            return r;
-//        }
-//        dataBitCursor() {
-//            return new DataBitCursor(this.buffer, this.byteOffset, this.byteLength);
-//        }
+        [inspect_custom]() {
+            let r = "";
+            const delim = (this.length > 16) ? "\n  " : ""; 
+            let b = Buffer.from(this);
+            for(let i=0; i < this.length; i+=16)
+                r += delim + b.toString('hex', i, i+16);
+            return r;
+        }
+        dataBitCursor() {
+            return new DataBitCursor(this.buffer, this.byteOffset, this.byteLength);
+        }
     };
-    if (fixedLength !== undefined) {
-        C.fixedLength = fixedLength;
-    }
-    return C;
 };
 
-OctetString.from_oer = function (dc, len) {
-    return OctetString(len).from_oer(dc, len);
+OctetString.from_oer = function (dc, fixedLen) {
+    return OctetString(fixedLen).from_oer(dc, fixedLen);
 };
-OctetString.from_uper = function (dc, len) {
-    return OctetString(len).from_uper(dc, len);
-};
-
-OctetString.to_oer = function (dc, r, len) {
-    return OctetString(len).to_oer(dc, r, len);
+OctetString.from_uper = function (dc, fixedLen) {
+    return OctetString(fixedLen).from_uper(dc, fixedLen);
 };
 
-OctetString.to_uper = function (dc, r, len) {
-    return OctetString(len).to_uper(dc, r, len);
+OctetString.to_oer = function (dc, r, fixedLen) {
+    return OctetString(fixedLen).to_oer(dc, r, fixedLen);
+};
+
+OctetString.to_uper = function (dc, r, fixedLen) {
+    return OctetString(fixedLen).to_uper(dc, r, fixedLen);
+};
+
+OctetString.create = function (v, fixedLen) {
+    return OctetString(fixedLen).create(v);
 };
 

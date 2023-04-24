@@ -17,7 +17,7 @@ import {UTF8String} from "./asn/UTF8String.mjs";
 import {OctetString} from "./asn/OctetString.mjs";
 import {Choice} from "./asn/Choice.mjs";
 import {DataCursor} from "./asn/DataCursor.mjs";
-import {Sequence} from "./asn/Sequence.mjs";
+import {SequenceBase, Sequence} from "./asn/Sequence.mjs";
 import {SequenceOf} from "./asn/SequenceOf.mjs";
 import {Tag} from "./asn/Tag.mjs";
 import {OpenType} from "./asn/OpenType.mjs";
@@ -25,7 +25,7 @@ import {Null} from "./asn/Null.mjs";
 import {ObjectIdentifier} from "./asn/ObjectIdentifier.mjs";
 
 function createSpanElement(t, v) {
-    let s =document.createElement('SPAN');
+    let s = document.createElement('SPAN');
     s.classList.add('value');
     s.classList.add(t);
     if(v != null){
@@ -52,17 +52,20 @@ function createHtmlElement( v ){
         return createSpanElement('boolean', v?'true':'false');
     }else if (typeof v === 'object'){
         if (typeof v.htmlElement === 'function'){
-            return v.htmlElement();
+            el = v.htmlElement();
         }else if(Array.isArray(v)){
             el = document.createElement('DIV');
             el.classList.add('array');
             for(let i=0; i<v.length; i++){
                 el.appendChild(createHtmlElement( v[i] ));
             }
-            return el;
         }else if (typeof v.toString === 'function'){
-            return createSpanElement(v.constructor.name.toLowerCase(), v.toString());
+            el = createSpanElement(v.constructor.name.toLowerCase(), v.toString());
+        }else {
+            el = createSpanElement(v.constructor.name.toLowerCase(), v);               
         }
+        el.asn1 = v;
+        return el;
     }
     return createSpanElement('unknown', v);
 }
@@ -88,6 +91,7 @@ var SequenceWeb = function (fields, options) {
                 }
             }
         }
+        el.asn1 = this;
         return el;
     }
     return C;
@@ -98,6 +102,7 @@ var ChoiceWeb = function (fields, options) {
     C.prototype.htmlElement = function(){
         let el = document.createElement('DIV');
         el.classList.add('choice');
+        el.asn1 = this;
         for (let i = 0; i < fields.length; i++) {
             let f = fields[i];
             if (f.name && this[f.name] !== undefined) {
@@ -114,13 +119,33 @@ var ChoiceWeb = function (fields, options) {
         }
         return el;
     }
+    C.prototype.editElement = function() {
+        let menu = document.createElement('UL');
+        menu.classList.add('editor');
+        for (let i = 0; i < fields.length; i++) {
+            let f = fields[i];
+            if (f.name && f.type) {
+                let item  = document.createElement('LI');
+                let i_type = document.createElement('SPAN');
+                let i_name = document.createElement('SPAN');
+                i_type.textContent = f.type.name;
+                i_name.textContent = f.name;
+                item.appendChild(i_name);
+                item.appendChild(i_type);
+                menu.appendChild(item);
+            }
+        }
+        return menu;
+    }
     return C;
 }
 
 var BitStringWeb  = function(fixedLength) {
     var C = BitString(fixedLength);
     C.prototype.htmlElement = function() {
-        return createSpanElement('bitstring', this.reduce((a,v)=>a+=(v?'1':'0'), '[') + ']');
+        let el = createSpanElement('bitstring', this.reduce((a,v)=>a+=(v?'1':'0'), '[') + ']');
+        el.asn1 = this;
+        return el;
     }
     return C;
 }
@@ -130,7 +155,9 @@ BitStringWeb.from_oer = BitStringWeb().from_oer;
 var EnumeratedWeb = function(fields){
     var C = Enumerated(fields);
     C.prototype.htmlElement = function(){
-        return createSpanElement('enumerated', fields[this.valueOf()] + ' (' + this.toString()+')');
+        let el = createSpanElement('enumerated', fields[this.valueOf()] + ' (' + this.toString()+')');
+        el.asn1 = this;
+        return el;
     }
     return C;
 }
@@ -138,10 +165,13 @@ var EnumeratedWeb = function(fields){
 var IA5StringWeb = function (fixedLength) {
     var C = IA5String(fixedLength);
     C.prototype.htmlElement = function() {
-        return createSpanElement('string', this);
+        let el = createSpanElement('string', this);
+        el.asn1 = this;
+        return el;
     };
     return C;
 }
+
 IA5StringWeb.from_oer = function (dc, len) {
     return IA5StringWeb(len).from_oer(dc, len);
 };
@@ -149,10 +179,13 @@ IA5StringWeb.from_oer = function (dc, len) {
 var UTF8StringWeb = function (fixedLength) {
     var C = UTF8String(fixedLength);
     C.prototype.htmlElement = function() {
-        return createSpanElement('string', this);
+        let el = createSpanElement('string', this);
+        el.asn1 = this;
+        return el;
     };
     return C;
 }
+
 UTF8StringWeb.from_oer = function (dc, len) {
     return UTF8StringWeb(len).from_oer(dc, len);
 };
@@ -160,7 +193,9 @@ UTF8StringWeb.from_oer = function (dc, len) {
 var OctetStringWeb = function (fixedLength) {
     var C = OctetString(fixedLength);
     C.prototype.htmlElement = function() {
-        return createSpanElement('octetstring', this.toHex());
+        let el = createSpanElement('octetstring', this.toHex());
+        el.asn1 = this;
+        return el;
     }
     return C;
 }
@@ -173,7 +208,9 @@ OctetStringWeb.from_uper = function (dc, len) {
 var IntegerWeb = function(options, max){
     var C = Integer(options, max);
     C.prototype.htmlElement = function(){
-        return createSpanElement('number', this);
+        let el = createSpanElement('number', this);
+        el.asn1 = this;
+        return el;
     }
     return C;
 }
@@ -181,9 +218,11 @@ IntegerWeb.from_oer = Integer.from_oer;
 IntegerWeb.to_oer = Integer.to_oer;
 IntegerWeb.from_uper = Integer.from_uper;
 
-ObjectIdentifier.htmlElement = function() {
-    return createSpanElement('OID', this.toHex());
-} 
+ObjectIdentifier.prototype.htmlElement = function() {
+    let el = createSpanElement('OID', this.toHex());
+    el.asn1 = this;
+    return el;
+}
 
 export {
     DataCursor,

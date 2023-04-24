@@ -1,4 +1,7 @@
 export class Int16 {
+    static create(v){
+        return v ? v : 0;
+    }
     static from_oer(dc) {
         return dc.getInt16();
     }

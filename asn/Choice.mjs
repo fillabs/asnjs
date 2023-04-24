@@ -38,6 +38,45 @@ export var Choice = function (fields, options) {
     var C = class iChoice {
         constructor() {
         }
+        
+        /**
+         * @constructs 
+         */
+        static create(){
+            var x = new this();
+            // looking throw the fields to find the default one.
+            var f, tagIndex = 0, i = 0;
+            for(;i<fields.length; i++){
+                if(fields[i].name !== undefined){
+                    f = fields[i];
+                    break;
+                }
+            }
+            if(f !== undefined){
+                if(f.init === undefined){
+                    for(;i<fields.length; i++){
+                        if(fields[i].name !== undefined){
+                            tagIndex ++;
+                            f = fields[i];
+                            break;
+                        }
+                    }
+                }
+            }
+            x.tagIndex = tagIndex;
+            x.tagName = f.name;
+            Object.defineProperty(x, f.name, {
+                __proto__: null, enumerable: true, writable: true,
+                value: f.type ? (()=>{
+                    if(typeof f.type.create === 'function'){
+                        return f.type.create(f.init);
+                    }
+                    console.log("Oups!!!");
+                    return null;
+                })() : null
+            });
+            return x;
+        }
 
         /**
          * @param {DataCursor} dc 
@@ -67,8 +106,7 @@ export var Choice = function (fields, options) {
                     let l = Length.from_oer(dc);
                     e_end = dc.index + l;
                 }
-                if (f.name) {
-                    
+                if (f.name) {    
                     Object.defineProperty(x, f.name, {
                         __proto__: null, enumerable: true, writable: true,
                         value: f.type ? ((dc, options)=>{

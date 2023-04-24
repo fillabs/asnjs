@@ -3,19 +3,59 @@ import {Length} from './Length.mjs';
 import {Uint8} from './Uint8.mjs';
 
 /**
- * @param {number} fixedLength 
+ * @param {number|object} typeOptions 
  * @returns {iBitString}
  */
-export var BitString = function (fixedLength) {
-    var C;
+export var BitString = function (typeOptions) {
+    var _fixedLength;
+    if(typeof typeOptions === 'object'){
+        _fixedLength = typeOptions.size;
+    }else if(typeOptions !== undefined){
+        _fixedLength = Number.parseInt(typeOptions);
+    }
+
     /**
      * @class
      * @extends {boolean[]}
      * @param {number} len
      */
-    C = class iBitString extends Array {
+    return class iBitString extends Array {
+        get fixedLength() {
+            return _fixedLength;
+        }
+        static get fixedLength() {
+            return _fixedLength;
+        }
+        
         constructor(len) {
-            super(len);
+            if(len === undefined)
+                len = _fixedLength;
+	        super(len);
+        }
+        /**
+         * @param {number} len Number of bits 
+         * @param {number|Array} v  
+         * @returns {iBitString} Newly created BITSTRING
+         */
+        static create(v) {
+            var r = new this();
+            if(v !== undefined && r.length > 0){
+                if(Array.isArray(v)){
+                    let l = (r.length < v.length) ? r.length : v.length;
+                    let i = 0;
+                    for (; i<l; i++){
+                        r[i] = (v[i] ? true : false);
+                    }
+                    for (; i<r.length; i++){
+                        r[i] = false;
+                    }
+                }else{
+                    v = Number.parseInt(v);
+                    for (let i=0; i<r.length; i++){
+                        r[i] = (v & (1 << (r.length-i-1)));
+                    }
+                }
+            }
         }
         /**
          * @param {DataCursor} dc 
@@ -32,8 +72,8 @@ export var BitString = function (fixedLength) {
                 }
             };
 
-            if (fixedLength !== undefined) {
-                bitLength = fixedLength;
+            if (_fixedLength !== undefined) {
+                bitLength = _fixedLength;
             }
 
             if (bitLength !== undefined) {
@@ -72,9 +112,9 @@ export var BitString = function (fixedLength) {
          */
         static to_oer(dc, r, bitLength) {
             if(bitLength === undefined)
-                bitLength = fixedLength;
+                bitLength = _fixedLength;
             else if (typeof bitLength === 'object')
-                bitLength = bitLength.length;
+                bitLength = bitLength.length??bitLength.size;
             if(bitLength === undefined){
                 let len = ~~((r.length + 7) / 8);
                 // write len including unused bits octet and the unused bits octet
@@ -99,11 +139,6 @@ export var BitString = function (fixedLength) {
             return dc;
         }
     };
-
-    if (fixedLength !== undefined)
-        C.fixedLength = fixedLength;
-
-    return C;
 };
 
 /**

@@ -1,8 +1,9 @@
 import {DataCursor} from './DataCursor.mjs';
 import {BitString} from './BitString.mjs';
 import {Length} from './Length.mjs';
-import { OpenType } from 'asnjs';
+import {OpenType} from './OpenType.mjs';
 
+export class SequenceBase {}
 export var Sequence = function (fields, options) {
 
     var OptCount = 0;
@@ -30,10 +31,40 @@ export var Sequence = function (fields, options) {
     if (Options.extendable)
         OptCount++;
 
-    var C = class Sequence {
+    var C = class Sequence extends SequenceBase {
 
         constructor() {
+            super();
+        }
 
+        static create(values) {
+            let x = new this();
+            let i = 0;
+            for (;i < fields.length; i++) {
+                let v = null, f = fields[i];
+                if (f.name === undefined) continue;
+                if(values[f.name] !== undefined){
+                    v = values[f.name];
+                } else if(f.init !== undefined){
+                    v = f.init;
+                }else if (f.optional) {
+                    if (f.default !== undefined) {
+                        v = f.default;
+                    }
+                    continue;
+                }
+                Object.defineProperty(x, f.name, {
+                    __proto__: null, enumerable: true, writable: true,
+                    value: f.type ? ((v)=>{
+                        if(typeof f.type.create === 'function'){
+                            return f.type.create(v);
+                        }
+                        console.log("Oups!!!");
+                        return null;
+                    })(v) : v
+                });
+            }
+            return x;
         }
 
         static from_oer(dc, options) {

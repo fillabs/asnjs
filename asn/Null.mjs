@@ -1,4 +1,7 @@
 export class Null {
+    static create(){
+        return null;
+    }
     static from_oer(dc) {
         return null;
     }

@@ -1,4 +1,7 @@
 export class Uint32 {
+    static create(v){
+        return v ? v : 0;
+    }
     static from_oer(dc) {
         return dc.getUint32();
     }

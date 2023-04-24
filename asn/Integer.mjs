@@ -31,7 +31,9 @@ export var Integer = function (options, max) {
         get extendable() {
             return Integer.Options.extendable;
         }
-
+        static create(v){
+            return v ? v : 0;
+        }
         static from_oer(dc) {
             var l = Length.from_oer(dc);
             var x = 0;
